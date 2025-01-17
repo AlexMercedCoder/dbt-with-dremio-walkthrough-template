@@ -1,5 +1,46 @@
 # Using dbt with Dremio Walkthrough
 
+# Table of Contents
+
+- [Starting Up Dremio on Your Laptop](#starting-up-dremio-on-your-laptop)
+- [Creating a Python Virtual Environment and Installing dbt](#creating-a-python-virtual-environment-and-installing-dbt)
+- [Creating Your dbt Project](#creating-your-dbt-project)
+  - [`dbt init` prompts](#dbt-init-prompts)
+    - [Basics](#basics)
+    - [Connection Settings and Authentication](#connection-settings-and-authentication)
+    - [9-12: Default View and Table Storage Location](#9-12-default-view-and-table-storage-location)
+      - [Materializing Tables Location](#materializing-tables-location)
+      - [Creating Views Location](#creating-views-location)
+    - [13 Thread](#13-thread)
+- [Customizing Configurations in dbt with Dremio](#customizing-configurations-in-dbt-with-dremio)
+  - [Configuring Defaults for a Group of Models in `dbt_project.yml`](#configuring-defaults-for-a-group-of-models-in-dbt_projectyml)
+  - [Configuring an Individual Model with the config Function](#configuring-an-individual-model-with-the-config-function)
+  - [Explanation of Key Configuration Options](#explanation-of-key-configuration-options)
+- [Common dbt Commands and Their Purpose](#common-dbt-commands-and-their-purpose)
+  - [Core dbt Commands](#core-dbt-commands)
+  - [Tips for Using dbt Commands](#tips-for-using-dbt-commands)
+- [Writing a `schema.yml` File in dbt](#writing-a-schemayml-file-in-dbt)
+  - [Where Should `schema.yml` Files Be Located?](#where-should-schemayml-files-be-located)
+  - [Structure of a `schema.yml` File](#structure-of-a-schemayml-file)
+  - [Key Properties in schema.yml](#key-properties-in-schemayml)
+  - [Best Practices for schema.yml Files](#best-practices-for-schemayml-files)
+- [Generating Documentation with dbt-Dremio: Syncing Descriptions and Tags](#generating-documentation-with-dbt-dremio-syncing-descriptions-and-tags)
+  - [Enabling the Sync](#enabling-the-sync)
+  - [How It Works](#how-it-works)
+  - [Example schema.yml File](#example-schemayml-file)
+  - [What Happens in Dremio](#what-happens-in-dremio)
+  - [Benefits of Enabling Persisted Documentation](#benefits-of-enabling-persisted-documentation)
+- [Using Environment Variables in dbt](#using-environment-variables-in-dbt)
+  - [Where to Use Environment Variables in dbt](#where-to-use-environment-variables-in-dbt)
+  - [How to Define Environment Variables](#how-to-define-environment-variables)
+    - [Inline with a Command](#inline-with-a-command)
+    - [Pre-Defining in the Environment](#pre-defining-in-the-environment)
+    - [Using a `.env` File](#using-a-env-file)
+      - [Loading a .env file into the active shell](#loading-a-env-file-into-the-active-shell)
+  - [Best Practices for Using Environment Variables](#best-practices-for-using-environment-variables)
+- [Further Reading](#further-reading)
+
+
 Unified Analytics with Dremio unlocks the ability to streamline your data workflows by providing a single, cohesive platform for querying and analyzing data across multiple sources. By integrating dbt into your Dremio semantic layer, you can elevate your data modeling process to new heights. Dremio's dbt integration not only orchestrates SQL workflows but also enables seamless synchronization of documentation and tags directly with Dremio, ensuring that your data assets are well-organized and discoverable. With the ability to run tests, model across various Dremio-supported data sources, and define incremental pipelines, you can build robust and scalable analytics processes. Moreover, this integration allows you to define and optimize reflections directly in your dbt models, accelerating query performance while maintaining consistency and governance across your datasets. This combination of Dremio and dbt creates a powerful toolkit for curating a unified, efficient, and high-performance analytics environment.
 
 ## Starting Up Dremio on Your Laptop
