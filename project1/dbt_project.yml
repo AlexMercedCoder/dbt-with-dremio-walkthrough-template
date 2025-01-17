@@ -29,22 +29,14 @@ clean-targets:         # directories to be removed by `dbt clean`
 # In this example config, we tell dbt to build all models in the example/
 # directory as views. These settings can be overridden in the individual model
 # files using the `{{ config(...) }}` macro.
+
 models:
   project1:
     # Config indicated by + and applies to all files under models/example/
     example:
       +materialized: view
+      +dremio_space: "{{ env_var('DBT_ENV', 'development') }}"
       +persist_docs:
-        relation: true
-    dev:
-      +materialized: view
-      +dremio_space: development
-      +persist_docs:
-        relation: true
-    prod:
-      +materialized: view
-      +dremio_space: production
-      +persist_docs:
-        relation: true
+        relation: True
 
 
