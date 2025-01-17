@@ -36,3 +36,15 @@ models:
       +materialized: view
       +persist_docs:
         relation: true
+    dev:
+      +materialized: view
+      +dremio_space: development
+      +persist_docs:
+        relation: true
+    prod:
+      +materialized: view
+      +dremio_space: production
+      +persist_docs:
+        relation: true
+
+
