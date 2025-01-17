@@ -244,3 +244,106 @@ To effectively use dbt with Dremio, it’s important to familiarize yourself wit
 By mastering these commands, you’ll be equipped to manage, test, and document your dbt project efficiently!
 
 _note: not all of these commands may yet be supported by Dremio's dbt integration_
+
+## Writing a `schema.yml` File in dbt
+
+The `schema.yml` file in dbt is a key component of your project that defines metadata, tests, and documentation for your models, seeds, and snapshots. It provides a centralized place to describe your data and enforce quality standards, making your dbt project easier to manage and understand.
+
+#### **Where Should `schema.yml` Files Be Located?**
+
+- Place your `schema.yml` files in the same directory as the corresponding models they describe. This ensures that the metadata and tests are logically grouped with the resources they apply to.
+- For example:
+`models/ analytics/ orders.sql customers.sql schema.yml`
+
+#### **Structure of a `schema.yml` File**
+
+Below is an example structure of a `schema.yml` file, followed by explanations of its key components:
+
+```yaml
+version: 2
+
+models:
+- name: orders
+  description: "Contains data about customer orders."
+  columns:
+    - name: order_id
+      description: "Unique identifier for each order."
+      tests:
+        - unique
+        - not_null
+    - name: customer_id
+      description: "References the ID of the customer who placed the order."
+      tests:
+        - not_null
+
+- name: customers
+  description: "Contains data about customers."
+  columns:
+    - name: customer_id
+      description: "Unique identifier for each customer."
+      tests:
+        - unique
+        - not_null
+    - name: customer_name
+      description: "The name of the customer."
+
+seeds:
+- name: countries
+  description: "Static dataset containing country codes and names."
+  columns:
+    - name: country_code
+      description: "Two-letter ISO country code."
+      tests:
+        - unique
+        - not_null
+    - name: country_name
+      description: "Full name of the country."
+
+snapshots:
+- name: order_snapshots
+  description: "Captures historical data about orders over time."
+```
+#### Key Properties in schema.yml
+
+1. `version`
+
+- **Purpose**: Specifies the version of the schema.yml file format being used. Always set this to 2.
+
+2. `models`
+
+- **Purpose**: Defines metadata, descriptions, and tests for the models in the current directory.
+
+**Key Properties for `models`**:
+- name: The name of the model (matches the .sql file name).
+- description: A short explanation of the model's purpose or content.
+- columns: Provides metadata and tests for each column in the model.
+
+3. `columns`
+
+- **Purpose**: Adds metadata and defines tests for individual columns.
+
+**Key Properties for `columns`:**
+- name: The column name in the model.
+- description: A brief description of what the column represents.
+- tests: A list of tests to validate the column (e.g., unique, not_null, or custom tests).
+
+4. `seeds`
+
+- **Purpose**: Provides metadata and tests for seed files (CSV files) located in the data/ directory.
+- **Structure**: Similar to models, with name, description, and columns.
+
+5. `snapshots`
+
+- **Purpose**: Describes and documents snapshots that capture historical data.
+
+**Key Properties for snapshots**:
+
+- name: The name of the snapshot.
+- description: A short explanation of the snapshot's purpose.
+
+#### Best Practices for schema.yml Files
+- Keep descriptions concise and informative. Use them to help others understand the purpose of each model and column.
+- Define tests wherever possible. This ensures that your data meets quality standards.
+- Organize by context. Place schema.yml files in directories that match the purpose or domain of the models they describe.
+
+By maintaining well-documented and organized schema.yml files, you can ensure that your dbt project is not only functional but also easy to understand, debug, and scale.
