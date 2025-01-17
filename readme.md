@@ -1,5 +1,8 @@
 # Using dbt with Dremio Walkthrough
 
+- [Dremio Docs](https://docs.dremio.com)
+- [Dremio Semantic Layer CI/CD with dbt whitepaper](https://www.dremio.com/wp-content/uploads/2024/01/Semantic-Layer-CI_CD-with-Dremio-and-dbt.pdf)
+
 # Table of Contents
 
 - [Starting Up Dremio on Your Laptop](#starting-up-dremio-on-your-laptop)
