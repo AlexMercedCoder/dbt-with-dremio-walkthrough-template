@@ -4,7 +4,7 @@
 - [Dremio Semantic Layer CI/CD with dbt whitepaper](https://www.dremio.com/wp-content/uploads/2024/01/Semantic-Layer-CI_CD-with-Dremio-and-dbt.pdf)
 - [dbt-dremio adapter Repository](https://github.com/dremio/dbt-dremio)
 
-# Table of Contents
+## Table of Contents
 
 - [Starting Up Dremio on Your Laptop](#starting-up-dremio-on-your-laptop)
 - [Creating a Python Virtual Environment and Installing dbt](#creating-a-python-virtual-environment-and-installing-dbt)
