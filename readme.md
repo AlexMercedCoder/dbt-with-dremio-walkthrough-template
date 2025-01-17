@@ -347,3 +347,243 @@ snapshots:
 - Organize by context. Place schema.yml files in directories that match the purpose or domain of the models they describe.
 
 By maintaining well-documented and organized schema.yml files, you can ensure that your dbt project is not only functional but also easy to understand, debug, and scale.
+
+## Generating Documentation with dbt-Dremio: Syncing Descriptions and Tags
+
+When using `dbt-dremio`, you can seamlessly sync model descriptions and tags from your `dbt` project into Dremio as wikis and labels. This feature enhances your data documentation by making it accessible directly within Dremio's user interface, ensuring consistent metadata across tools.
+
+#### **Enabling the Sync**
+
+To enable this feature, you need to turn on the `persist_docs` property in your `dbt_project.yml` file with the `relation` option set to `True`. This configuration ensures that the model descriptions and tags are persisted in Dremio.
+
+Example `dbt_project.yml` configuration:
+
+```yaml
+models:
+  project1:
+    example:
+      +materialized: view
+      +dremio_space: "{{ env_var('DBT_ENV', 'development') }}"
+      +persist_docs:
+        relation: True
+```
+
+#### How It Works
+
+**Descriptions:**
+
+The `description` property in the `schema.yml` file for a model is added to the model's wiki in Dremio.
+This provides a central place for users to understand the purpose and structure of each model directly in Dremio.
+
+**Tags:**
+
+The tags defined in the `schema.yml` file within the model's config are converted into labels in Dremio.
+These labels help organize and filter models within Dremio based on shared attributes or business domains.
+
+#### Example schema.yml File
+Here’s an example of how to define descriptions and tags for your models in `schema.yml`:
+
+```yaml
+version: 2
+
+models:
+  - name: my_first_dbt_model
+    description: "A starter dbt model"
+    columns:
+      - name: id
+        description: "The primary key for this table"
+        data_tests:
+          - unique
+          - not_null
+    tags: 
+      - cheese
+    config:
+      tags: 
+        - test
+
+  - name: my_second_dbt_model
+    description: "A starter dbt model"
+    columns:
+      - name: id
+        description: "The primary key for this table"
+        data_tests:
+          - unique
+          - not_null
+    tags:
+      - test
+      - cheese
+    config:
+      tags: 
+        - test
+```
+
+#### What Happens in Dremio
+
+**Wiki Sync:**
+
+- The description of `my_first_dbt_model` ("A starter dbt model") is added to the wiki of the corresponding view in Dremio.
+
+**Label Sync:**
+
+- The `test` tag is added as a label to the corresponding views in Dremio.
+- tags listed under `config: tags:` are considered.
+
+#### Benefits of Enabling Persisted Documentation
+- **Centralized Metadata:** Descriptions and tags are automatically synchronized, reducing duplication of effort.
+- **Improved Discoverability:** Labels in Dremio make it easier to search, filter, and categorize views.
+- **Enhanced Collaboration:** With wikis synced, teams can quickly understand the context and purpose of models within Dremio.
+By enabling persist_docs in your dbt_project.yml and leveraging descriptions and tags in your schema.yml, you can ensure that your Dremio environment is always enriched with up-to-date and meaningful documentation.
+
+## Using Environment Variables in dbt
+
+Environment variables are a powerful tool in dbt for managing dynamic configurations, securing sensitive information, and adapting to different environments (e.g., development, staging, production). They can be used in various places within dbt, including `profiles.yml`, `dbt_project.yml`, and individual models. Here’s how you can effectively use and define them.
+
+#### **Where to Use Environment Variables in dbt**
+
+1. **In `profiles.yml`**
+   - Use environment variables to dynamically configure sensitive information like database credentials or schemas.
+   - Example:
+     ```yaml
+           dremio_space: "{{ env_var('DBT_SPACE', 'default_catalog') }}"
+           dremio_space_folder: "{{ env_var('DBT_ENV', 'development') }}" 
+     ```
+
+2. **In `dbt_project.yml`**
+   - Use environment variables to configure model settings, tags, or storage paths dynamically.
+   - Example:
+     ```yaml
+     models:
+       sales_data_product:
+         dremio_space: "{{ env_var('DBT_SPACE', 'default_catalog') }}"
+         dremio_space_folder: "sales.{{ env_var('DBT_ENV', 'development') }}" 
+     ```
+
+3. **In Individual Models**
+   - Use environment variables within a `config` call to parameterize table storage or view paths.
+   - Example:
+     ```sql
+     {{ config(
+         materialized='view',
+         dremio_space=env_var('DBT_SPACE', 'default_catalog'),
+         dremio_space_folder=f`sales.{env_var('DBT_ENV', 'development')}`
+     ) }}
+
+     SELECT *
+     FROM source_table
+     ```
+
+---
+
+#### **How to Define Environment Variables**
+
+1. **Inline with a Command**
+   - Pass environment variables directly when running dbt commands:
+     ```bash
+     DBT_SPACE=partner_catalog DBT_ENV=production dbt run
+     ```
+
+    ```powershell
+    $env:DBT_ENV = “production”; dbt run
+    ```
+
+   - This method is useful for ad-hoc executions or temporary overrides.
+
+2. **Pre-Defining in the Environment**
+   - Set the environment variables globally in your terminal or operating system:
+     - **Linux/Mac**:
+       ```bash
+       export DBT_SPACE=partner_catalog
+       export DBT_ENV=production
+       ```
+     - **Windows (Command Prompt)**:
+       ```cmd
+       set DBT_SPACE=partner_catalog
+       set DBT_ENV=production
+       ```
+     - **Windows (PowerShell)**:
+       ```powershell
+       $env:DBT_SPACE = "partner_catalog"
+       $env:DBT_ENV = "production"
+       ```
+   - This method is best for CI/CD pipelines or when working on a specific session.
+
+3. **Using a `.env` File**
+   - Create a `.env` file to store your environment variables, and use a library like `python-dotenv` (if applicable) to load them.
+   - Example `.env` file:
+     ```
+     DBT_SPACE=partner_catalog
+     DBT_ENV=production
+     ```
+   - To load the `.env` file in dbt, set up your environment or ensure your deployment pipeline supports loading it.
+
+#### Loading a .env file into the active shell
+
+**Bash (Linux/Mac)**
+To load the .env file and make its variables available in your current session:
+
+```bash
+set -o allexport && source .env && set +o allexport
+```
+**Explanation**:
+- `set -o allexport`: Automatically exports all variables loaded into the shell.
+- `source .env`: Reads and executes the .env file to load the variables.
+- `set +o allexport`: Turns off automatic export to prevent overwriting variables unintentionally.
+
+Alternatively, for simpler cases:
+
+```bash
+export $(grep -v '^#' .env | xargs)
+```
+
+**Command Prompt (Windows CMD)**
+Command Prompt does not have a built-in way to load .env files, but you can simulate it by manually setting the variables. If the file has many variables, you can write a script or use a tool like `dotenv-cli`.
+
+For a single variable:
+
+```cmd
+for /F "tokens=1,2 delims==" %A in ('.env') do set %A=%B
+```
+
+**Recommended Tool:**
+Use a tool like `dotenv-cli`:
+
+Install via npm:
+```cmd
+npm install -g dotenv-cli
+```
+
+Run your commands with the .env file loaded:
+```cmd
+dotenv dbt run
+```
+
+**PowerShell**
+To load a `.env` file in PowerShell:
+
+```powershell
+Get-Content .env | ForEach-Object {
+    if ($_ -notmatch "^\s*#") {
+        $name, $value = $_ -split '=', 2
+        $env:$name = $value
+    }
+}
+```
+
+Explanation:
+- `Get-Content .env`: Reads the .env file line by line.
+- `if ($_ -notmatch "^\s*#")`: Skips lines starting with # (comments).
+- `$name, $value = $_ -split '=', 2`: Splits each line into key and value.
+- `$env:$name = $value`: Sets the environment variable for the current session.
+
+
+#### **Best Practices for Using Environment Variables**
+- **Secure Sensitive Information**: Never hardcode credentials or secrets in your `dbt_project.yml` or any files checked into git. Use environment variables instead.
+- **Provide Defaults**: Always include a fallback value in `env_var()` to avoid errors when a variable isn’t set.
+- **Document Variables**: Maintain a list of required environment variables for your team in a README or setup guide.
+- **Adapt to Multiple Environments**: Use environment variables to switch between development, staging, and production seamlessly.
+
+By leveraging environment variables effectively, you can make your dbt projects more dynamic, secure, and adaptable to any environment.
+
+## Further Reading
+- [dbt-dremio materialization and incremental features](https://github.com/dremio/dbt-dremio/wiki/Using-Materializations-with-Dremio)
+- [Using Github Actions with dbt-dremio](https://www.dremio.com/blog/automating-dremio-dbt-with-github-actions/)
