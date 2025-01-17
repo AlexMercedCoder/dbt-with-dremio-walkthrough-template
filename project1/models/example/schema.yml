@@ -10,6 +10,8 @@ models:
         data_tests:
           - unique
           - not_null
+        config:
+          tags: ["test"]
 
   - name: my_second_dbt_model
     description: "A starter dbt model"
@@ -19,3 +21,5 @@ models:
         data_tests:
           - unique
           - not_null
+        config:
+          tags: ["test"]
